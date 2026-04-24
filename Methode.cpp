@@ -7,11 +7,8 @@
 
 void Methode :: entrer (std :: string fonction)
 {
-    std :: vector<char> :: iterator it ;
-    std ::string actuel , tab ;
-    int i ,j , tailleT , puissance;
-    tailleT = 0;
-
+    std ::string actuel ;
+    int i ,j , puissance , compteur ;
 
     for (i = 0 ;i < fonction.size(); i++)
     {
@@ -60,187 +57,180 @@ void Methode :: entrer (std :: string fonction)
     fonction = actuel ;
     actuel = "" ;
 
-    /*std :: cout << "fonction = " ;
 
-    for ( i = 0 ;i<fonction.size() ;i++)
-    {
-        std :: cout << fonction[i] ;
-    }
-    std :: cout << std::endl;
-    */
-    
-
-    for ( i = 0 ; i < fonction.size() ; i++)
+    i =0 ;
+    while (i < fonction.size())
     {
         if (fonction[i] == '(')
         {
-            for ( j = i ; j<fonction.size() ; j++)
+            actuel = "";
+            compteur = 1;
+            actuel = actuel + fonction[i];
+            i = i +1;
+            
+            while (i < fonction.size() && compteur > 0)
             {
-                if (fonction[j] != ')')
+                if (fonction[i] == '(') 
                 {
-                    actuel = actuel + fonction[j] ;
+                    compteur++;
                 }
-                else 
+                if (fonction[i] == ')') 
                 {
-                    actuel = actuel + fonction[j] ;
-                    i = j ;
-                    T.push_back (actuel) ;
-                    actuel =""  ;                                          
-                    break ;
+                    compteur--;
                 }
-                
+                actuel = actuel + fonction[i];
+                i = i +1;
             }
+
+            T.push_back(actuel);
+        }
+        else if (fonction[i] == '/')
+        {
+            T.push_back("/");
+            i++;
         }
         else
         {
-            actuel = actuel + fonction[i] ;   
-            T.push_back (actuel) ;
-            actuel ="";
+            actuel = "";
+            while (i < fonction.size() && fonction[i] != '(' && fonction[i] != '/')
+            {
+                actuel = actuel + fonction[i];
+                i = i +1 ;
+            }
+
+            if (actuel.size() != 0)
+            {
+                T.push_back(actuel);
+            }
         }
     }
 
-    /*for (i = 0 ; i < T.size() ;i++)
+    for (int k = 0; k < T.size(); k++)
     {
-        std::cout << " T[i] = " << T[i] << std :: endl ; 
-    }*/
+        std::cout << "T[" << k << "] = " << T[k] << std::endl;
+    }
+}
 
+double Methode :: calcul(std::string fonction, double x)
+{
+    int i ,j , coef ,nombreX ,signe;
+    double resultat ,resultat1 ;
+    resultat1 = 0 ;
+    std ::string contenu , actuel ;
+    std :: vector <std::string> temp ; 
 
+    actuel = "";
 
-        for ( i = 0 ; i < fonction.size() ;i++)
+    if (fonction[0] == '(')
+    {
+        fonction = fonction.substr(1, fonction.size()-2);
+    }
+
+    for ( i = 0 ; i < fonction.size() ;i++)
+    {
+        if (fonction[i] != '+' && fonction[i] != '-')
         {
-            if (fonction[i] != '+' && fonction[i] != '-')
-            {
-                actuel = actuel + fonction[i] ;
-            }
-            else if (fonction[i] == '+' || fonction[i] == '-')
-            {
-                if (actuel.size() != 0)
-                {
-                    T.push_back(actuel);
-                }
-
-                actuel = "";
-                actuel = actuel + fonction[i];
-            }
+            actuel = actuel + fonction[i] ;
         }
-    
+        else
+        {
+            if (actuel.size() != 0)
+            {
+                temp.push_back(actuel);
+            }
+
+            actuel = "";
+            actuel = actuel + fonction[i];
+        }
+    }
 
     if (actuel.size() != 0)
     {
-        T.push_back(actuel) ;
-        actuel = "" ;
+        temp.push_back(actuel);
     }
 
-
-    for (i = 0; i < T.size(); i++)
+    for ( i = 0 ; i < temp.size() ;i++)
     {
-        std::cout << T[i] << std::endl;
+        coef =0 ;
+        nombreX=0;
+        contenu = temp[i] ;
+
+        for (j = 0 ; j < contenu.size() ; j++)
+        {
+            if (contenu[j]>= '0' && contenu[j] <='9')
+            {
+                coef = coef *10 + (contenu[j] - '0' );
+            }
+            else if (contenu[j] == 'x')
+            {
+                break;
+            }
+        }
+
+        if (coef == 0 && contenu.find('x') != std::string::npos)
+        {
+            coef = 1 ;
+        }
+
+        for (j=0 ; j<contenu.size() ;j++)
+        {
+            if (contenu[j] == 'x')
+            {
+                nombreX ++;
+            }
+        }
+
+        resultat = coef ;
+        for (j =0 ;j<nombreX ;j++)
+        {
+            resultat = resultat * x ;
+        }
+
+        if (contenu[0] == '-')
+        {
+            signe = -1 ;
+        }
+        else
+        {
+            signe = 1;
+        }
+
+        resultat = signe * resultat;
+        resultat1 = resultat1 + resultat ;
     }
 
-
+    return resultat1 ;
 }
-
-void Methode ::df ( std :: string fonction)
-{
-
-}
-
 
 double Methode :: f (double x)
 {
-    int i ,j  ,k , coef ,nombreX ,signe;
-    double resultat ,resultat1 , resultatFinal;
-    resultat1 = 0 ;
-    std ::string contenu , fonction , actuel ;
-    std :: vector <std::string> temp ; 
+    int i;
+    double resultat , courant , denominateur;
 
-    for ( k = 0 ; k < T.size() ; k++)
+    resultat = 0;
+    resultat = calcul(T[0], x);
+
+    for (i = 1; i < T.size(); i++)
     {
-        fonction = T[k] ;
-
-        for ( i = 0 ; i < fonction.size() ;i++)
+        if (T[i] == "/")
         {
-            if (fonction[i] != '+' && fonction[i] != '-')
-            {
-                actuel = actuel + fonction[i] ;
-            }
-            else if (fonction[i] == '+' || fonction[i] == '-')
-            {
-                if (actuel.size() != 0)
-                {
-                     temp.push_back(actuel);
-                }
+            denominateur = calcul(T[i+1], x);
 
-                actuel = "";
-                actuel = actuel + fonction[i];
-            }
+            resultat = resultat / denominateur;
+            i++; 
         }
-
-        if (actuel.size() != 0)
+        else
         {
-            temp.push_back(actuel) ;
-            actuel = "" ;
-        }
-
-        for ( i = 0 ; i < temp.size() ;i++)
-        {
-            coef =0 ;
-            nombreX=0;
-            contenu = temp[i] ;
-            for (j = 0 ; j < contenu.size() ; j++)
-            {
-                if (contenu[j]>= '0' && contenu[j] <='9')
-                {
-                    coef = coef *10 + (contenu[j] - '0' );
-                }
-                else if (contenu[j] == 'x')
-                {
-                    break;
-                }
-            }
-
-            if (coef== 0)
-            {
-                coef = 1 ;
-            }
-
-            for (j=0 ; j<contenu.size() ;j++)
-            {
-                if (contenu[j] == 'x')
-                {
-                    nombreX ++;
-                }
-            }
-
-            resultat = coef ;
-            for (j =0 ;j<nombreX ;j++)
-            {
-                resultat = resultat * x ;
-            }
-
-            if (contenu[0] == '-')
-            {
-                signe = -1 ;
-            }
-            else
-            {
-                signe = 1;
-            }
-            resultat = signe * resultat;
-
-            resultat1= resultat1 + resultat ;
+            courant = calcul(T[i], x);
+            resultat = resultat + courant;
         }
     }
 
-    return(resultat1) ;
-
+    return (resultat);
 }
-
-
 
 /*double Methode :: f (double x )
 {
-    //return (2*x*x - 5*x + 2) ;
     return (3*x*x - 7) ;
 }*/
 
@@ -252,13 +242,19 @@ double Methode :: derive (double x)
 double Methode :: newton()
 {
     double xn , xnP1 , val , epsilon ;
-    int i = 0;
+    int i = 0 , d;
     val= 1 ;
     epsilon = 0.000001;
     
     do 
     {
         xn = val;
+        d = derive(xn);
+        if (fabs(d) < 0.0000001)
+        {
+            std :: cout << "derivee nulle" << std :: endl ;
+            break;
+        }
         xnP1 = (xn - (f(xn) / derive(xn)));
         //std ::cout << "xn = " << xn << "f(xn) = " << f(xn) << "derive(xn) == " << derive(xn) << std::endl ;
         val = xnP1 ;
